@@ -12,16 +12,15 @@ function draw(scene) {
     var state = {};
     
     // CLASSES
-    var Node = function (x, y, onClick) {
-        this.x = x;
-        this.y = y;
+    var Node = function (point, onClick) {
+        this.point = point;
         this.onClick = onClick || function () {};
     };
 
     Node.prototype.draw = function () {
         var node = document.createElementNS(SVG_NS, 'circle');
-        node.setAttribute('cx', this.x);
-        node.setAttribute('cy', this.y);
+        node.setAttribute('cx', this.point.x);
+        node.setAttribute('cy', this.point.y);
         node.setAttribute('r', '15');
         node.addEventListener("click", this.onClick);
         scene.appendChild(node);
@@ -33,20 +32,17 @@ function draw(scene) {
     };
     
     var Edge = function (p1, p2, onClick) {
-        this.x1 = p1.x;
-        this.y1 = p1.y;
-        this.x2 = p2.x;
-        this.y2 = p2.y;
+        this.p1 = p1;
+        this.p2 = p2;
         this.onClick = onClick || function () {};
     };
     
    Edge.prototype.draw = function () {
         var line = document.createElementNS(SVG_NS, 'line');
-        line.setAttribute('x1', this.x1);
-        line.setAttribute('y1', this.y1);
-        line.setAttribute('x2', this.x2);
-        line.setAttribute('y2', this.y2);
-        line.setAttribute('y2', this.y2);
+        line.setAttribute('x1', this.p1.x);
+        line.setAttribute('y1', this.p1.y);
+        line.setAttribute('x2', this.p2.x);
+        line.setAttribute('y2', this.p2.y);
         line.setAttribute('stroke', 'black');
         line.setAttribute('stroke-width', '6');
         line.addEventListener("click", this.onClick);
@@ -78,14 +74,14 @@ function draw(scene) {
    scene.onclick = function (e) {
        switch (state.mode) {
            case modes.ADD_NODE:
-               var node = new Node(e.clientX, e.clientY);
+               var node = new Node(new Point(e.clientX, e.clientY));
                setState({nodes:state.nodes.concat(node)});
                break;
        }
    };
     
     // get things going
-    var prototypeNode = new Node(20, 20, function (e) {
+    var prototypeNode = new Node(new Point(20, 20), function (e) {
         e.stopPropagation();
         setState({mode: modes.ADD_NODE})
     });
