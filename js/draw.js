@@ -82,10 +82,18 @@ function draw(scene) {
         this.dragging = dragging || false;
     };
     
+    Scrubber.prototype.update = function (value) {
+        this.value = value;
+
+        //redraw
+        Array.prototype.slice.call(scene.getElementsByClassName('scrubber')).forEach(function (element) {
+            scene.removeChild(element);
+        });
+        this.draw();
+    };
+    
     Scrubber.prototype.draw = function () {
         var line = document.createElementNS(SVG_NS, 'line');
-        //var x = 300;
-        //var length = 150;
         var y = 400;
         var r = 20;
         line.setAttribute('x1', this.x);
@@ -94,12 +102,14 @@ function draw(scene) {
         line.setAttribute('y2', y);
         line.setAttribute('stroke', 'black');
         line.setAttribute('stroke-width', '3');
+        line.setAttribute('class', 'scrubber');
         scene.appendChild(line);
 
         var circle = document.createElementNS(SVG_NS, 'circle');
         circle.setAttribute('cx', this.x + this.value * this.length);
         circle.setAttribute('cy', y);
         circle.setAttribute('r', r);
+        circle.setAttribute('class', 'scrubber');
         circle.addEventListener("mousedown", (function () {
             this.dragging = true;
         }).bind(this));
@@ -115,7 +125,7 @@ function draw(scene) {
                 } else if (value < 0) {
                     value = 0;
                 }
-                setState({scrubber: new Scrubber(value, true)});
+                this.update(value);
             }
         }).bind(this));
         scene.appendChild(circle);
