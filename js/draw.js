@@ -58,6 +58,19 @@ function draw(scene) {
         line.addEventListener("click", this.onClick);
         scene.appendChild(line);
     };
+    
+    var Text = function (point, body) {
+        this.point = point;
+        this.body = body;
+    };
+    
+    Text.prototype.draw = function () {
+        var text = document.createElementNS(SVG_NS, 'text');
+        text.setAttribute('x', this.point.x);
+        text.setAttribute('y', this.point.y);
+        text.innerHTML = this.body;
+        scene.appendChild(text);
+    };
 
     // SETUP
     var setState = function (newState) {
@@ -80,6 +93,7 @@ function draw(scene) {
             edge.draw();
         });
         if (state.newEdge) state.newEdge.draw();
+        state.config.draw();
     };
 
     scene.onmousemove = function (e) {
@@ -131,11 +145,13 @@ function draw(scene) {
         e.stopPropagation();
         setState({mode: modes.ADD_EDGE_SRC})
     });
+    var config = new Text(new Point(10, 400), "hello world");
     setState({
         nodes: [prototypeNode],
         edges: [prototypeEdge],
         mode: modes.INIT,
-        newEdge: null
+        newEdge: null,
+        config: config
     });
 }
 
