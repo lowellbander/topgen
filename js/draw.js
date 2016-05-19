@@ -34,6 +34,11 @@ function draw(scene) {
         scene.appendChild(node);
     };
     
+    Node.prototype.serialize = function () {
+        var tab = '\t';
+        return this.name + tab + this.point.x + tab + this.point.y;
+    };
+    
     var Point = function (x, y) {
         this.x = x;
         this.y = y;
@@ -71,6 +76,21 @@ function draw(scene) {
         text.innerHTML = this.body;
         scene.appendChild(text);
     };
+    
+    var generateOutput = function () {
+        state.output = [];
+        var x = 10;
+        var y = 400;
+        var lineHeight = 20;
+        var header = "#Name \t x \t y";
+        state.output = [new Text(new Point(x, y), header)].concat(state.nodes.filter(function (node, i) {
+            return i !== 0;
+        }).map(function (node) {
+            return node.serialize();
+        }).map(function (serialization) {
+            return new Text(new Point(x, y += lineHeight), serialization);
+        }));
+    };
 
     // SETUP
     var setState = function (newState) {
@@ -93,7 +113,11 @@ function draw(scene) {
             edge.draw();
         });
         if (state.newEdge) state.newEdge.draw();
-        state.config.draw();
+        
+        generateOutput();
+        state.output.forEach(function (line) {
+            line.draw();
+        });
     };
 
     scene.onmousemove = function (e) {
@@ -145,13 +169,12 @@ function draw(scene) {
         e.stopPropagation();
         setState({mode: modes.ADD_EDGE_SRC})
     });
-    var config = new Text(new Point(10, 400), "hello world");
     setState({
         nodes: [prototypeNode],
         edges: [prototypeEdge],
         mode: modes.INIT,
         newEdge: null,
-        config: config
+        output: []
     });
 }
 
