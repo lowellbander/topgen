@@ -106,11 +106,11 @@ function draw(scene) {
         }
         
         // draw things
-        state.nodes.forEach(function (node) {
-            node.draw();
-        });
         state.edges.forEach(function (edge) {
             edge.draw();
+        });
+        state.nodes.forEach(function (node) {
+            node.draw();
         });
         if (state.newEdge) state.newEdge.draw();
         
