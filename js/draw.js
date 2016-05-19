@@ -72,6 +72,54 @@ function draw(scene) {
         this.point = point;
         this.body = body;
     };
+
+    var Scrubber = function (value, dragging) {
+
+        this.value = value || 1;
+        
+        this.x = 300;
+        this.length = 150;
+        this.dragging = dragging || false;
+    };
+    
+    Scrubber.prototype.draw = function () {
+        var line = document.createElementNS(SVG_NS, 'line');
+        //var x = 300;
+        //var length = 150;
+        var y = 400;
+        var r = 20;
+        line.setAttribute('x1', this.x);
+        line.setAttribute('y1', y);
+        line.setAttribute('x2', this.x + this.length);
+        line.setAttribute('y2', y);
+        line.setAttribute('stroke', 'black');
+        line.setAttribute('stroke-width', '3');
+        scene.appendChild(line);
+
+        var circle = document.createElementNS(SVG_NS, 'circle');
+        circle.setAttribute('cx', this.x + this.value * this.length);
+        circle.setAttribute('cy', y);
+        circle.setAttribute('r', r);
+        circle.addEventListener("mousedown", (function () {
+            this.dragging = true;
+        }).bind(this));
+        circle.addEventListener("mouseup", (function () {
+            this.dragging = false;
+        }).bind(this));
+        circle.addEventListener("mousemove", (function (e) {
+            var x = e.clientX;
+            if (this.dragging && x > this.x - r && x < this.x + this.length + r) {
+                var value = (x - this.x) / this.length;
+                if (value > 1) {
+                    value = 1;
+                } else if (value < 0) {
+                    value = 0;
+                }
+                setState({scrubber: new Scrubber(value, true)});
+            }
+        }).bind(this));
+        scene.appendChild(circle);
+    };
     
     Text.prototype.draw = function () {
         var text = document.createElementNS(SVG_NS, 'text');
@@ -80,7 +128,8 @@ function draw(scene) {
         text.innerHTML = this.body;
         scene.appendChild(text);
     };
-    
+
+    // SETUP
     var generateOutput = function () {
         state.output = [];
         var x = 10;
@@ -109,7 +158,6 @@ function draw(scene) {
                             .concat(objectsToText(rest(state.edges)));
     };
 
-    // SETUP
     var setState = function (newState) {
         for (var attr in newState) {
             state[attr] = newState[attr];
@@ -130,6 +178,7 @@ function draw(scene) {
             node.draw();
         });
         if (state.newEdge) state.newEdge.draw();
+        state.scrubber.draw();
         
         generateOutput();
         state.output.forEach(function (line) {
@@ -191,7 +240,8 @@ function draw(scene) {
         edges: [prototypeEdge],
         mode: modes.INIT,
         newEdge: null,
-        output: []
+        output: [],
+        scrubber: new Scrubber()
     });
 }
 
