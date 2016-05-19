@@ -39,9 +39,11 @@ function draw(scene) {
         this.y = y;
     };
     
-    var Edge = function (p1, p2, onClick) {
+    var Edge = function (p1, p2, src, dst, onClick) {
         this.p1 = p1;
         this.p2 = p2;
+        this.src = src || null;
+        this.dst = dst || null;
         this.onClick = onClick || function () {};
     };
     
@@ -83,9 +85,9 @@ function draw(scene) {
     scene.onmousemove = function (e) {
         switch (state.mode) {
             case modes.ADD_EDGE_DST:
-                var src = state.newEdge.p1;
-                var dst = new Point(e.clientX, e.clientY);
-                setState({newEdge: new Edge(src, dst)});
+                var p1 = state.newEdge.p1;
+                var p2 = new Point(e.clientX, e.clientY);
+                setState({newEdge: new Edge(p1, p2, state.newEdge.src)});
                 break;
         }
     };
@@ -100,7 +102,7 @@ function draw(scene) {
                             var src = new Point(this.point.x, this.point.y);
                             var dst = new Point(this.point.x + 20, this.point.y - 20);
                             setState({
-                                newEdge: new Edge(src, dst),
+                                newEdge: new Edge(src, dst, this),
                                 mode: modes.ADD_EDGE_DST
                             });
                             break;
@@ -108,7 +110,7 @@ function draw(scene) {
                             var src = state.newEdge.p1;
                             var dst = new Point(this.point.x, this.point.y);
                             setState({
-                                edges: state.edges.concat(new Edge(src, dst)),
+                                edges: state.edges.concat(new Edge(src, dst, state.newEdge.src, this)),
                                 newEdge: null,
                                 mode: modes.ADD_EDGE_SRC
                             });
@@ -125,7 +127,7 @@ function draw(scene) {
         e.stopPropagation();
         setState({mode: modes.ADD_NODE})
     }, "PROTO");
-    var prototypeEdge = new Edge(new Point(10, 65), new Point(30, 50), function (e) {
+    var prototypeEdge = new Edge(new Point(10, 65), new Point(30, 50), null, null, function (e) {
         e.stopPropagation();
         setState({mode: modes.ADD_EDGE_SRC})
     });
