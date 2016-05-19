@@ -6,7 +6,9 @@ function draw(scene) {
     // GLOBALS
     var modes = {
         INIT: 'INIT',
-        ADD_NODE: 'ADD_NODE'
+        ADD_NODE: 'ADD_NODE',
+        ADD_EDGE_SRC: 'ADD_EDGE_SRC',
+        ADD_EDGE_DST: 'ADD_EDGE_DST'
     };
     
     var state = {};
@@ -14,7 +16,7 @@ function draw(scene) {
     // CLASSES
     var Node = function (point, onClick) {
         this.point = point;
-        this.onClick = onClick || function () {};
+        this.onClick = (onClick || function () {}).bind(this);
     };
 
     Node.prototype.draw = function () {
@@ -69,27 +71,63 @@ function draw(scene) {
         state.edges.forEach(function (edge) {
             edge.draw();
         });
+        if (state.newEdge) state.newEdge.draw();
     };
 
-   scene.onclick = function (e) {
-       switch (state.mode) {
-           case modes.ADD_NODE:
-               var node = new Node(new Point(e.clientX, e.clientY));
-               setState({nodes:state.nodes.concat(node)});
-               break;
-       }
-   };
+    scene.onmousemove = function (e) {
+        switch (state.mode) {
+            case modes.ADD_EDGE_DST:
+                var src = state.newEdge.p1;
+                var dst = new Point(e.clientX, e.clientY);
+                setState({newEdge: new Edge(src, dst)});
+                break;
+        }
+    };
     
-    // get things going
+    // TODO: this is getting bulky, perhaps it's time for a refactor
+    scene.onclick = function (e) {
+        switch (state.mode) {
+            case modes.ADD_NODE:
+                var node = new Node(new Point(e.clientX, e.clientY), function () {
+                    switch (state.mode) {
+                        case modes.ADD_EDGE_SRC:
+                            var src = new Point(this.point.x, this.point.y);
+                            var dst = new Point(this.point.x + 20, this.point.y - 20);
+                            setState({
+                                newEdge: new Edge(src, dst),
+                                mode: modes.ADD_EDGE_DST
+                            });
+                            break;
+                        case modes.ADD_EDGE_DST:
+                            var src = state.newEdge.p1;
+                            var dst = new Point(this.point.x, this.point.y);
+                            setState({
+                                edges: state.edges.concat(new Edge(src, dst)),
+                                newEdge: null,
+                                mode: modes.ADD_EDGE_SRC
+                            });
+                            break;
+                    }
+                });
+                setState({nodes:state.nodes.concat(node)});
+                break;
+        }
+    };
+    
+    // INIT
     var prototypeNode = new Node(new Point(20, 20), function (e) {
         e.stopPropagation();
         setState({mode: modes.ADD_NODE})
     });
-    var prototypeEdge = new Edge(new Point(10, 65), new Point(30, 50));
+    var prototypeEdge = new Edge(new Point(10, 65), new Point(30, 50), function (e) {
+        e.stopPropagation();
+        setState({mode: modes.ADD_EDGE_SRC})
+    });
     setState({
         nodes: [prototypeNode],
         edges: [prototypeEdge],
-        mode: modes.INIT
+        mode: modes.INIT,
+        newEdge: null
     });
 }
 
