@@ -14,9 +14,15 @@ function draw(scene) {
     var state = {};
     
     // CLASSES
-    var Node = function (point, onClick) {
+    var Node = function (point, onClick, name) {
+        this.name = name || this.getNewName();
         this.point = point;
         this.onClick = (onClick || function () {}).bind(this);
+    };
+    
+    var nodeIndex = 0;
+    Node.prototype.getNewName = function () {
+        return "Node" + (nodeIndex++);
     };
 
     Node.prototype.draw = function () {
@@ -118,7 +124,7 @@ function draw(scene) {
     var prototypeNode = new Node(new Point(20, 20), function (e) {
         e.stopPropagation();
         setState({mode: modes.ADD_NODE})
-    });
+    }, "PROTO");
     var prototypeEdge = new Edge(new Point(10, 65), new Point(30, 50), function (e) {
         e.stopPropagation();
         setState({mode: modes.ADD_EDGE_SRC})
