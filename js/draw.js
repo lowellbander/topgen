@@ -64,6 +64,10 @@ function draw(scene) {
         scene.appendChild(line);
     };
     
+    Edge.prototype.serialize = function () {
+        return this.src.name + ' ' + this.dst.name;
+    };
+    
     var Text = function (point, body) {
         this.point = point;
         this.body = body;
@@ -82,14 +86,27 @@ function draw(scene) {
         var x = 10;
         var y = 400;
         var lineHeight = 20;
-        var header = "#Name \t x \t y";
-        state.output = [new Text(new Point(x, y), header)].concat(state.nodes.filter(function (node, i) {
-            return i !== 0;
-        }).map(function (node) {
-            return node.serialize();
-        }).map(function (serialization) {
-            return new Text(new Point(x, y += lineHeight), serialization);
-        }));
+        
+        var genOffsetText = function (str) {
+            return new Text(new Point(x, y += lineHeight), str);
+        };
+        
+        var objectsToText = function (objects) {
+            return objects.map(function (x) {
+                return x.serialize();
+            }).map(function (s) {
+                return genOffsetText(s);
+            });
+        };
+        
+        var rest = function (arr) {
+            return arr.slice(1);
+        };
+        
+        state.output = [genOffsetText("# Name x y")]
+                            .concat(objectsToText(rest(state.nodes)))
+                            .concat(genOffsetText("# Src Dst"))
+                            .concat(objectsToText(rest(state.edges)));
     };
 
     // SETUP
