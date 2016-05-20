@@ -73,6 +73,15 @@ function draw(scene) {
         this.body = body;
     };
 
+    Text.prototype.draw = function () {
+        var text = document.createElementNS(SVG_NS, 'text');
+        text.setAttribute('x', this.point.x);
+        text.setAttribute('y', this.point.y);
+        text.setAttribute('font-family', 'monospace');
+        text.innerHTML = this.body;
+        scene.appendChild(text);
+    };
+
     var Scrubber = function (value, dragging) {
 
         this.value = value || 1;
@@ -131,14 +140,6 @@ function draw(scene) {
         scene.appendChild(circle);
     };
     
-    Text.prototype.draw = function () {
-        var text = document.createElementNS(SVG_NS, 'text');
-        text.setAttribute('x', this.point.x);
-        text.setAttribute('y', this.point.y);
-        text.innerHTML = this.body;
-        scene.appendChild(text);
-    };
-
     // SETUP
     var generateOutput = function () {
         state.output = [];
@@ -162,9 +163,9 @@ function draw(scene) {
             return arr.slice(1);
         };
         
-        state.output = [genOffsetText("# Name x y")]
+        state.output = [genOffsetText("#Name x y")]
                             .concat(objectsToText(rest(state.nodes)))
-                            .concat(genOffsetText("# Src Dst"))
+                            .concat(genOffsetText("#Src Dst"))
                             .concat(objectsToText(rest(state.edges)));
     };
 
