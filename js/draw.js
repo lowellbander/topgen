@@ -13,6 +13,10 @@ function draw(scene) {
     
     var state = {};
     
+    var classes = {
+        PRESERVE: 'PRESERVE',
+    };
+    
     // CLASSES
     var Node = function (point, onClick, name) {
         this.name = name || this.getNewName();
@@ -85,6 +89,10 @@ function draw(scene) {
     Scrubber.prototype.update = function (value) {
         this.value = value;
 
+        var index = Math.min((history.length - 1), Math.floor(this.value * history.length));
+        history = history.slice(0, index);
+        setState(history[history.length - 1]);
+
         //redraw
         Array.prototype.slice.call(scene.getElementsByClassName('scrubber')).forEach(function (element) {
             scene.removeChild(element);
@@ -102,14 +110,14 @@ function draw(scene) {
         line.setAttribute('y2', y);
         line.setAttribute('stroke', 'black');
         line.setAttribute('stroke-width', '3');
-        line.setAttribute('class', 'scrubber');
+        line.classList.add('scrubber', classes.PRESERVE);
         scene.appendChild(line);
 
         var circle = document.createElementNS(SVG_NS, 'circle');
         circle.setAttribute('cx', this.x + this.value * this.length);
         circle.setAttribute('cy', y);
         circle.setAttribute('r', r);
-        circle.setAttribute('class', 'scrubber');
+        circle.classList.add('scrubber', classes.PRESERVE);
         circle.addEventListener("mousedown", (function () {
             this.dragging = true;
         }).bind(this));
@@ -167,8 +175,14 @@ function draw(scene) {
                             .concat(genOffsetText("# Src Dst"))
                             .concat(objectsToText(rest(state.edges)));
     };
-
+    
+    var history = [];
+    // TODO: store future
+    
     var setState = function (newState) {
+        
+        history.push(Object.assign({}, state));
+        console.log(history);
         for (var attr in newState) {
             state[attr] = newState[attr];
         }
@@ -176,9 +190,11 @@ function draw(scene) {
         console.log(state);
 
         // clear scene
-        while(scene.firstChild) {
-            scene.removeChild(scene.firstChild);
-        }
+        Array.prototype.filter.call(scene.children, function (child) {
+            return !child.classList.contains(classes.PRESERVE);
+        }).map(function (child) {
+            scene.removeChild(child);
+        });
         
         // draw things
         state.edges.forEach(function (edge) {
@@ -188,7 +204,6 @@ function draw(scene) {
             node.draw();
         });
         if (state.newEdge) state.newEdge.draw();
-        state.scrubber.draw();
         
         generateOutput();
         state.output.forEach(function (line) {
@@ -245,13 +260,14 @@ function draw(scene) {
         e.stopPropagation();
         setState({mode: modes.ADD_EDGE_SRC})
     });
+    var scrubber = new Scrubber();
+    scrubber.draw();
     setState({
         nodes: [prototypeNode],
         edges: [prototypeEdge],
         mode: modes.INIT,
         newEdge: null,
         output: [],
-        scrubber: new Scrubber()
     });
 }
 
