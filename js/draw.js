@@ -85,13 +85,9 @@ function draw(scene) {
         this.length = 150;
         this.dragging = dragging || false;
     };
-    
+
     Scrubber.prototype.update = function (value) {
         this.value = value;
-
-        var index = Math.min((history.length - 1), Math.floor(this.value * history.length));
-        history = history.slice(0, index);
-        setState(history[history.length - 1]);
 
         //redraw
         Array.prototype.slice.call(scene.getElementsByClassName('scrubber')).forEach(function (element) {
@@ -175,27 +171,73 @@ function draw(scene) {
                             .concat(genOffsetText("# Src Dst"))
                             .concat(objectsToText(rest(state.edges)));
     };
+
+    // TODO: visualize position in time
+    var past = [];
+    var future = [];
+
+    var print = function (stuff) {
+        console.log(stuff);
+    };
     
-    var history = [];
-    // TODO: store future
-    
-    var setState = function (newState) {
-        
-        history.push(Object.assign({}, state));
-        console.log(history);
+    window.onkeydown = function (e) {
+
+        var rewind = function () {
+            if (past.length <= 1) {
+                console.error('no more history to go back through');
+                return;
+            }
+            var newState = past.pop()
+            future.unshift(newState);
+            state = newState;
+            redraw();
+        };
+
+        var fastForward = function () {
+            print('going forward');
+            if (future.length === 0) {
+                console.error('no more future to go forwards through');
+                return;
+            }
+            var newState = future.shift();
+            past.push(newState);
+            state = newState;
+            redraw();
+        };
+
+        var key = e.code;
+        switch (key) {
+            case "ArrowLeft":
+                rewind();
+                break;
+            case "ArrowRight":
+                fastForward();
+                break;
+            default:
+                print(key);
+                break;
+        }
+    };
+
+    var setState = function (newState, logging = true) {
+        if (logging) {
+            past.push(Object.assign({}, state));
+        }
         for (var attr in newState) {
             state[attr] = newState[attr];
         }
-        
         console.log(state);
-
+        redraw();
+    };
+    
+    var redraw = function () {
         // clear scene
         Array.prototype.filter.call(scene.children, function (child) {
             return !child.classList.contains(classes.PRESERVE);
         }).map(function (child) {
             scene.removeChild(child);
         });
-        
+
         // draw things
         state.edges.forEach(function (edge) {
             edge.draw();
@@ -204,7 +246,7 @@ function draw(scene) {
             node.draw();
         });
         if (state.newEdge) state.newEdge.draw();
-        
+
         generateOutput();
         state.output.forEach(function (line) {
             line.draw();
@@ -216,10 +258,11 @@ function draw(scene) {
             case modes.ADD_EDGE_DST:
                 var p1 = state.newEdge.p1;
                 var p2 = new Point(e.clientX, e.clientY);
-                setState({newEdge: new Edge(p1, p2, state.newEdge.src)});
+                setState({newEdge: new Edge(p1, p2, state.newEdge.src)}, false);
                 break;
         }
     };
+
     
     // TODO: this is getting bulky, perhaps it's time for a refactor
     scene.onclick = function (e) {
@@ -233,7 +276,7 @@ function draw(scene) {
                             setState({
                                 newEdge: new Edge(src, dst, this),
                                 mode: modes.ADD_EDGE_DST
-                            });
+                            }, false);
                             break;
                         case modes.ADD_EDGE_DST:
                             var src = state.newEdge.p1;
