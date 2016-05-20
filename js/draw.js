@@ -13,6 +13,10 @@ function draw(scene) {
     
     var state = {};
     
+    var classes = {
+        PRESERVE: 'PRESERVE',
+    };
+    
     // CLASSES
     var Node = function (point, onClick, name) {
         this.name = name || this.getNewName();
@@ -90,7 +94,7 @@ function draw(scene) {
         this.length = 150;
         this.dragging = dragging || false;
     };
-    
+
     Scrubber.prototype.update = function (value) {
         this.value = value;
 
@@ -111,14 +115,14 @@ function draw(scene) {
         line.setAttribute('y2', y);
         line.setAttribute('stroke', 'black');
         line.setAttribute('stroke-width', '3');
-        line.setAttribute('class', 'scrubber');
+        line.classList.add('scrubber', classes.PRESERVE);
         scene.appendChild(line);
 
         var circle = document.createElementNS(SVG_NS, 'circle');
         circle.setAttribute('cx', this.x + this.value * this.length);
         circle.setAttribute('cy', y);
         circle.setAttribute('r', r);
-        circle.setAttribute('class', 'scrubber');
+        circle.classList.add('scrubber', classes.PRESERVE);
         circle.addEventListener("mousedown", (function () {
             this.dragging = true;
         }).bind(this));
@@ -169,18 +173,72 @@ function draw(scene) {
                             .concat(objectsToText(rest(state.edges)));
     };
 
-    var setState = function (newState) {
+    // TODO: visualize position in time
+    var past = [];
+    var future = [];
+
+    var print = function (stuff) {
+        console.log(stuff);
+    };
+    
+    window.onkeydown = function (e) {
+
+        var rewind = function () {
+            if (past.length <= 1) {
+                console.error('no more history to go back through');
+                return;
+            }
+            var newState = past.pop()
+            future.unshift(newState);
+            state = newState;
+            redraw();
+        };
+
+        var fastForward = function () {
+            print('going forward');
+            if (future.length === 0) {
+                console.error('no more future to go forwards through');
+                return;
+            }
+            var newState = future.shift();
+            past.push(newState);
+            state = newState;
+            redraw();
+        };
+
+        var key = e.code;
+        switch (key) {
+            case "ArrowLeft":
+                rewind();
+                break;
+            case "ArrowRight":
+                fastForward();
+                break;
+            default:
+                print(key);
+                break;
+        }
+    };
+
+    var setState = function (newState, logging = true) {
+        if (logging) {
+            past.push(Object.assign({}, state));
+        }
         for (var attr in newState) {
             state[attr] = newState[attr];
         }
-        
         console.log(state);
-
+        redraw();
+    };
+    
+    var redraw = function () {
         // clear scene
-        while(scene.firstChild) {
-            scene.removeChild(scene.firstChild);
-        }
-        
+        Array.prototype.filter.call(scene.children, function (child) {
+            return !child.classList.contains(classes.PRESERVE);
+        }).map(function (child) {
+            scene.removeChild(child);
+        });
+
         // draw things
         state.edges.forEach(function (edge) {
             edge.draw();
@@ -189,8 +247,7 @@ function draw(scene) {
             node.draw();
         });
         if (state.newEdge) state.newEdge.draw();
-        state.scrubber.draw();
-        
+
         generateOutput();
         state.output.forEach(function (line) {
             line.draw();
@@ -202,10 +259,11 @@ function draw(scene) {
             case modes.ADD_EDGE_DST:
                 var p1 = state.newEdge.p1;
                 var p2 = new Point(e.clientX, e.clientY);
-                setState({newEdge: new Edge(p1, p2, state.newEdge.src)});
+                setState({newEdge: new Edge(p1, p2, state.newEdge.src)}, false);
                 break;
         }
     };
+
     
     // TODO: this is getting bulky, perhaps it's time for a refactor
     scene.onclick = function (e) {
@@ -219,7 +277,7 @@ function draw(scene) {
                             setState({
                                 newEdge: new Edge(src, dst, this),
                                 mode: modes.ADD_EDGE_DST
-                            });
+                            }, false);
                             break;
                         case modes.ADD_EDGE_DST:
                             var src = state.newEdge.p1;
@@ -246,13 +304,14 @@ function draw(scene) {
         e.stopPropagation();
         setState({mode: modes.ADD_EDGE_SRC})
     });
+    var scrubber = new Scrubber();
+    scrubber.draw();
     setState({
         nodes: [prototypeNode],
         edges: [prototypeEdge],
         mode: modes.INIT,
         newEdge: null,
         output: [],
-        scrubber: new Scrubber()
     });
 }
 
