@@ -26,6 +26,8 @@
     "babel-loader": "^6.2.4",
     "babel-preset-react": "^6.5.0",
     "express": "^4.13.4",
+    "react": "^15.1.0",
+    "react-addons-create-fragment": "^15.1.0",
     "webpack": "^1.13.1"
   }
 }
