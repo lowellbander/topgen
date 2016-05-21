@@ -1,8 +1,8 @@
 var React = require('react');
 
-var Example = require('./commentBox');
+var Topgen = require('./Topgen');
 
 React.render(
-  <Example />,
+  <Topgen />,
   document.getElementById('content')
 );
