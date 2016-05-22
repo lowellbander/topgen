@@ -2,3 +2,5 @@
 node_modules/
 *-compiled*
 *.swp
+lib/
+
