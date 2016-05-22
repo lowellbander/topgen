@@ -1,5 +1,6 @@
 var React = require('react');
 var Node = require('./Node');
+var Edge = require('./Edge');
 
 class Toolbox extends React.Component {
     constructor(props) {
@@ -19,12 +20,22 @@ class Toolbox extends React.Component {
             border: '1px solid black',
         };
         
+        // TODO: make a Tool class so this resizing is generalized
+        
+        var nTools = 2;
+        
         return (
             <svg style={frameStyle}>
                 <Node 
-                    x={this.state.width / 2}
+                    x={this.state.width / (nTools + 1)}
                     y={this.state.height / 2}
                     onClick={this.state.setTool.bind(null, this.state.tools.NODE_TOOL)}
+                    name={"NodeTool"}
+                />
+                <Edge
+                    x1={this.state.width / nTools}
+                    x2={30 + this.state.width / nTools}
+                    onClick={this.state.setTool.bind(null, this.state.tools.EDGE_TOOL)}
                 />
             </svg>
         );
