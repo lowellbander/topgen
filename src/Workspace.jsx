@@ -11,6 +11,7 @@ class Workspace extends React.Component {
         super(props);
         this.state = {
             nodes: [],
+            edges: [],
             tools: props.tools,
             newEdge: null,
         };
@@ -48,7 +49,15 @@ class Workspace extends React.Component {
     handleNodeClick(nodeName) {
         if (this.state.newEdge) {
             // finish
-            
+            var dst = this.state.nodes.find(node => node.name === nodeName);
+            var edge = {
+                src: this.state.newEdge.src,
+                dst: dst,
+            };
+            this.setState({
+                edges: this.state.edges.concat(edge),
+                newEdge: null,
+            });
         } else {
             // start
             var src = this.state.nodes.find(node => node.name === nodeName);
@@ -85,6 +94,20 @@ class Workspace extends React.Component {
             }, this
         );
         
+        var edges = this.state.edges.map(
+            function (edge, i) {
+                return (
+                    <Edge
+                        x1={edge.src.x}
+                        y1={edge.src.y}
+                        x2={edge.dst.x}
+                        y2={edge.dst.y}
+                        key={i}
+                    />
+                );
+            }
+        );
+        
         var newEdge;
         if (this.state.newEdge) {
             var src = this.state.newEdge.src;
@@ -111,8 +134,9 @@ class Workspace extends React.Component {
                 style={frameStyle}
                 onMouseMove={this.onMouseMove}
             >
-                {nodes}
+                {edges}
                 {newEdge}
+                {nodes}
             </svg>
         );
     }
