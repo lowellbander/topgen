@@ -17,6 +17,7 @@ class Workspace extends React.Component {
         this.addNode = this.addNode.bind(this);
         this.handleClick = this.handleClick.bind(this);
         this.handleNodeClick = this.handleNodeClick.bind(this);
+        this.onMouseMove = this.onMouseMove.bind(this);
     }
     
     handleClick(e) {
@@ -45,11 +46,28 @@ class Workspace extends React.Component {
     }
     
     handleNodeClick(nodeName) {
-        var src = this.state.nodes.find(node => node.name === nodeName);
-        var newEdge = {
-            src: src,
-        };
-        this.setState({newEdge: newEdge});
+        if (this.state.newEdge) {
+            // finish
+            
+        } else {
+            // start
+            var src = this.state.nodes.find(node => node.name === nodeName);
+            var newEdge = {
+                src: src,
+            };
+            this.setState({newEdge: newEdge});
+        }
+    }
+    
+    onMouseMove(e) {
+        if (this.state.newEdge) {
+            var x = e.pageX - e.target.getBoundingClientRect().left,
+                y = e.pageY - e.target.getBoundingClientRect().top;
+            var newEdge = Object.assign({}, this.state.newEdge);
+            newEdge.x = x;
+            newEdge.y = y;
+            this.setState({newEdge: newEdge});
+        }
     }
     
     render() {
@@ -74,8 +92,8 @@ class Workspace extends React.Component {
                 <Edge
                     x1={src.x}
                     y1={src.y}
-                    x2={src.x + 40}
-                    y2={src.y + 40}
+                    x2={this.state.newEdge.x || src.x + 40}
+                    y2={this.state.newEdge.y || src.y + 40}
                 />
             );
         } else {
@@ -90,7 +108,9 @@ class Workspace extends React.Component {
         return (
             <svg
                 onClick={this.handleClick}
-                style={frameStyle}>
+                style={frameStyle}
+                onMouseMove={this.onMouseMove}
+            >
                 {nodes}
                 {newEdge}
             </svg>
