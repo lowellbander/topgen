@@ -7,7 +7,7 @@ var ID = 0;
 var getID = () => ID++;
 
 class Workspace extends React.Component {
-    
+
     constructor(props) {
         super(props);
         this.state = {
@@ -21,7 +21,7 @@ class Workspace extends React.Component {
         this.handleNodeClick = this.handleNodeClick.bind(this);
         this.onMouseMove = this.onMouseMove.bind(this);
     }
-    
+
     handleClick(e) {
         switch (this.props.tool) {
             case this.state.tools.NO_TOOL:
@@ -37,7 +37,7 @@ class Workspace extends React.Component {
                 break;
         }
     }
-    
+
     addNode(e) {
         var x = e.pageX - e.target.getBoundingClientRect().left,
             y = e.pageY - e.target.getBoundingClientRect().top,
@@ -53,7 +53,7 @@ class Workspace extends React.Component {
         );
         this.setState({nodes: this.state.nodes.concat(newNode)});
     }
-    
+
     handleNodeClick(node) {
         if (!this.state.newEdge) {
             // start
@@ -74,7 +74,7 @@ class Workspace extends React.Component {
             });
         }
     }
-    
+
     onMouseMove(e) {
         if (this.state.newEdge && e.target.id === 'scene') {
             var x = e.pageX - e.target.getBoundingClientRect().left,
@@ -85,9 +85,9 @@ class Workspace extends React.Component {
             this.setState({newEdge: newEdge});
         }
     }
-    
+
     render() {
-        
+
         var newEdge;
         if (this.state.newEdge) {
             var src = this.state.newEdge.src;
@@ -104,7 +104,7 @@ class Workspace extends React.Component {
         } else {
             newEdge = <line />; // invisible
         }
-        
+
         var frameStyle = {
             width: '500px',
             height: '400px',
