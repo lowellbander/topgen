@@ -32,9 +32,13 @@ class Toolbox extends React.Component {
                     onClick={this.state.setTool.bind(null, this.state.tools.NODE_TOOL)}
                     name={"NodeTool"}
                 />
-                <Edge
+                <line
                     x1={this.state.width / nTools}
                     x2={30 + this.state.width / nTools}
+                    y1={10}
+                    y2={40}
+                    stroke="black"
+                    strokeWidth="10"
                     onClick={this.state.setTool.bind(null, this.state.tools.EDGE_TOOL)}
                 />
             </svg>

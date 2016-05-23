@@ -1,6 +1,7 @@
 var React = require('react');
 var Node = require('./Node');
 var Edge = require('./Edge');
+var Output = require('./Output');
 
 var ID = 0;
 var getID = () => ID++;
@@ -30,7 +31,6 @@ class Workspace extends React.Component {
                 this.addNode(e);
                 break;
             case this.state.tools.EDGE_TOOL:
-                console.error('clicked on Workspace with Edge Tool');
                 break;
             default:
                 console.error('no handler for tool: ', this.props.tool);
@@ -40,39 +40,46 @@ class Workspace extends React.Component {
     
     addNode(e) {
         var x = e.pageX - e.target.getBoundingClientRect().left,
-            y = e.pageY - e.target.getBoundingClientRect().top;
-        this.setState({
-            nodes: this.state.nodes.concat({x: x, y: y, name: "Node" + getID()})
-        });
+            y = e.pageY - e.target.getBoundingClientRect().top,
+            id = getID();
+        var newNode = (
+             <Node
+                 x={x}
+                 y={y}
+                 name={"Node" + id}
+                 key={id}
+                 onClick={this.handleNodeClick}
+             />
+        );
+        this.setState({nodes: this.state.nodes.concat(newNode)});
     }
     
-    handleNodeClick(nodeName) {
-        if (this.state.newEdge) {
+    handleNodeClick(node) {
+        if (!this.state.newEdge) {
+            // start
+            var newEdge = {src: node};
+            this.setState({newEdge: newEdge});
+        } else {
             // finish
-            var dst = this.state.nodes.find(node => node.name === nodeName);
-            var edge = {
-                src: this.state.newEdge.src,
-                dst: dst,
-            };
+            var edge = (
+                <Edge
+                    src={this.state.newEdge.src}
+                    dst={node}
+                    key={getID()}
+                />
+            );
             this.setState({
                 edges: this.state.edges.concat(edge),
                 newEdge: null,
             });
-        } else {
-            // start
-            var src = this.state.nodes.find(node => node.name === nodeName);
-            var newEdge = {
-                src: src,
-            };
-            this.setState({newEdge: newEdge});
         }
     }
     
     onMouseMove(e) {
-        if (this.state.newEdge) {
+        if (this.state.newEdge && e.target.id === 'scene') {
             var x = e.pageX - e.target.getBoundingClientRect().left,
                 y = e.pageY - e.target.getBoundingClientRect().top;
-            var newEdge = Object.assign({}, this.state.newEdge);
+            var newEdge = this.state.newEdge;
             newEdge.x = x;
             newEdge.y = y;
             this.setState({newEdge: newEdge});
@@ -80,43 +87,18 @@ class Workspace extends React.Component {
     }
     
     render() {
-        var nodes = this.state.nodes.map(
-            function (node, i) {
-                return (
-                    <Node
-                        x={node.x}
-                        y={node.y}
-                        key={i}
-                        onClick={this.handleNodeClick}
-                        name={node.name}
-                    />
-                );
-            }, this
-        );
-        
-        var edges = this.state.edges.map(
-            function (edge, i) {
-                return (
-                    <Edge
-                        x1={edge.src.x}
-                        y1={edge.src.y}
-                        x2={edge.dst.x}
-                        y2={edge.dst.y}
-                        key={i}
-                    />
-                );
-            }
-        );
         
         var newEdge;
         if (this.state.newEdge) {
             var src = this.state.newEdge.src;
             newEdge = (
-                <Edge
-                    x1={src.x}
-                    y1={src.y}
-                    x2={this.state.newEdge.x || src.x + 40}
-                    y2={this.state.newEdge.y || src.y + 40}
+                <line
+                    x1={src.state.x}
+                    y1={src.state.y}
+                    x2={this.state.newEdge.x || src.state.x + 40}
+                    y2={this.state.newEdge.y || src.state.y + 40}
+                    stroke="black"
+                    strokeWidth="10"
                 />
             );
         } else {
@@ -125,19 +107,26 @@ class Workspace extends React.Component {
         
         var frameStyle = {
             width: '500px',
-            height: '600px',
+            height: '400px',
             border: '1px solid black',
         };
         return (
-            <svg
-                onClick={this.handleClick}
-                style={frameStyle}
-                onMouseMove={this.onMouseMove}
-            >
-                {edges}
-                {newEdge}
-                {nodes}
-            </svg>
+            <div>
+                <svg
+                    id={"scene"}
+                    onClick={this.handleClick}
+                    style={frameStyle}
+                    onMouseMove={this.onMouseMove}
+                >
+                    {this.state.edges}
+                    {newEdge}
+                    {this.state.nodes}
+                </svg>
+                <Output
+                    edges={this.state.edges}
+                    nodes={this.state.nodes}
+                />
+            </div>
         );
     }
 }

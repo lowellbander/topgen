@@ -18,7 +18,7 @@ class Node extends React.Component {
                 cx={this.state.x}
                 cy={this.state.y}
                 r={this.state.r}
-                onClick={this.state.onClick.bind(null, this.state.name)}
+                onClick={this.state.onClick.bind(null, this)}
             />
         );
     }
