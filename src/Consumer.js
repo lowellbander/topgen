@@ -3,7 +3,8 @@ var Node = require('./NodeImpl');
 
 class Consumer extends Node {
   constructor(interestName) {
-    this.interest = new Interest(name);
+    super();
+    this.interest = new Interest(interestName);
   }
 
   sendInterest() {

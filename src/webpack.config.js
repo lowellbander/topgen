@@ -3,7 +3,7 @@ class Link {
     this.currPacketCount = 0;
     this.node1 = node1;
     this.node2 = node2;
-    this.capacity = typeof capacity !== 'undefined' ?  capacity : 1;
+    this.capacity = capacity;
   };
 
   registerPrefix(src, prefix) {

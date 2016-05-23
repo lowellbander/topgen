@@ -4,6 +4,7 @@ var Interest = require('./Interest');
 
 class Producer extends Node {
   constructor(dataName) {
+    super();
     this.data = new Data(dataName);
   };
 
