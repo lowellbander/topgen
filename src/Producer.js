@@ -1,4 +1,4 @@
-var Node = require('./NodeImpl');
+var Node = require('./Node');
 var Data = require('./Data');
 var Interest = require('./Interest');
 

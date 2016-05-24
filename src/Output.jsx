@@ -17,14 +17,14 @@ class Output extends React.Component {
         });
         
         var edges = this.props.edges.map(function (edge, i) {
-            return <p key={i}>{edge.props.src.state.name} {edge.props.dst.state.name}</p>;
+            return <p key={i}>{edge.props.node1.node.state.name} {edge.props.node2.node.state.name}</p>;
         });
 
         return (
             <div style={style}>
                 <p>#Name X Y</p>
                 {nodes}
-                <p>#Src Dst</p>
+                <p>#Node1 Node2</p>
                 {edges}
             </div>
         );
