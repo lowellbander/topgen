@@ -3,9 +3,6 @@ var Node = require('./Node');
 var Edge = require('./Edge');
 var Output = require('./Output');
 
-var ID = 0;
-var getID = () => ID++;
-
 class Workspace extends React.Component {
     
     constructor(props) {
@@ -18,7 +15,6 @@ class Workspace extends React.Component {
             selectedNode: null,
             setSelectedNode: props.setSelectedNode,
         };
-        this.addNode = this.addNode.bind(this);
         this.handleClick = this.handleClick.bind(this);
         this.handleNodeClick = this.handleNodeClick.bind(this);
         this.onMouseMove = this.onMouseMove.bind(this);
@@ -31,7 +27,9 @@ class Workspace extends React.Component {
                 console.error('No tool selected.');
                 break;
             case this.state.tools.NODE_TOOL:
-                this.addNode(e);
+                var x = e.pageX - e.target.getBoundingClientRect().left,
+                    y = e.pageY - e.target.getBoundingClientRect().top;
+                this.props.addNode({x: x, y: y});
                 break;
             case this.state.tools.EDGE_TOOL:
             case this.state.tools.SELECT_TOOL:
@@ -41,22 +39,6 @@ class Workspace extends React.Component {
                 console.error('no handler for tool: ', this.props.tool);
                 break;
         }
-    }
-    
-    addNode(e) {
-        var x = e.pageX - e.target.getBoundingClientRect().left,
-            y = e.pageY - e.target.getBoundingClientRect().top,
-            id = getID();
-        var newNode = (
-             <Node
-                 x={x}
-                 y={y}
-                 name={"Node" + id}
-                 key={id}
-                 onClick={this.handleNodeClick}
-             />
-        );
-        this.setState({nodes: this.state.nodes.concat(newNode)});
     }
     
     handleNodeClick(node) {
@@ -79,17 +61,8 @@ class Workspace extends React.Component {
             this.setState({newEdge: newEdge});
         } else {
             // finish
-            var edge = (
-                <Edge
-                    src={this.state.newEdge.src}
-                    dst={node}
-                    key={getID()}
-                />
-            );
-            this.setState({
-                edges: this.state.edges.concat(edge),
-                newEdge: null,
-            });
+            this.props.addEdge({src: this.state.newEdge.src, dst: node});
+            this.setState({newEdge: null});
         }
     }
     
@@ -129,17 +102,24 @@ class Workspace extends React.Component {
             border: '1px solid black',
         };
         
-        var nodes = this.state.nodes.map(function (node) {
-            return (this.props.selectedNode && node.props === this.props.selectedNode.props)
+        var nodes = this.props.nodes.map(function (node) {
+            return (this.props.selectedNode && node.props.name === this.props.selectedNode.props.name)
                 ? <Node 
                     x={node.props.x}
                     y={node.props.y}
                     name={node.props.name}
                     selected={true}
-                    key={getID()}
+                    key={node.key}
                     onClick={this.handleNodeClick}
                   />
-                : node;
+                : <Node 
+                    x={node.props.x}
+                    y={node.props.y}
+                    name={node.props.name}
+                    selected={false}
+                    key={node.key}
+                    onClick={this.handleNodeClick}
+                  />;
         }, this);
         
         return (
@@ -150,14 +130,10 @@ class Workspace extends React.Component {
                     style={frameStyle}
                     onMouseMove={this.onMouseMove}
                 >
-                    {this.state.edges}
+                    {this.props.edges}
                     {newEdge}
                     {nodes}
                 </svg>
-                <Output
-                    edges={this.state.edges}
-                    nodes={this.state.nodes}
-                />
             </div>
         );
     }
@@ -167,7 +143,11 @@ Workspace.propTypes = {
     tool: React.PropTypes.string.isRequired,
     tools: React.PropTypes.object.isRequired,
     setSelectedNode: React.PropTypes.func.isRequired,
+    nodes: React.PropTypes.array.isRequired,
+    edges: React.PropTypes.array.isRequired,
     selectedNode: React.PropTypes.object,
+    addNode: React.PropTypes.func.isRequired,
+    addEdge: React.PropTypes.func.isRequired,
 };
 
 module.exports = Workspace;

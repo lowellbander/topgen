@@ -33,9 +33,13 @@ Node.propTypes = {
     x: React.PropTypes.number.isRequired,
     y: React.PropTypes.number.isRequired,
     name: React.PropTypes.string.isRequired,
-    onClick: React.PropTypes.func.isRequired,
+    onClick: React.PropTypes.func,
     selected: React.PropTypes.bool,
     color: React.PropTypes.string,
+};
+
+Node.defaultProps = {
+    onClick: () => {},
 };
 
 module.exports = Node;
