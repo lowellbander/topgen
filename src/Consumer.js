@@ -1,5 +1,5 @@
+var Node = require('./Node');
 var Interest = require('./Interest');
-var Node = require('./NodeImpl');
 
 class Consumer extends Node {
   constructor(interestName) {
