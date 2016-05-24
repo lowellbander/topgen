@@ -16,7 +16,6 @@ class Edge extends React.Component {
     render() {
         var src = this.props.src,
             dst = this.props.dst;
-        debugger;
         return (
             <line
                 x1={src.state.x}
@@ -49,6 +48,8 @@ class Edge extends React.Component {
 Edge.PropTypes = {
     src: React.PropTypes.object.isRequired,
     dst: React.PropTypes.object.isRequired,
+    link: React.PropTypes.object.isRequired,
+    capacity: React.PropTypes.number.isRequired
 };
 
 function emptyFunction() {}
