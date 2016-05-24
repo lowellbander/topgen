@@ -15,11 +15,14 @@ class Workspace extends React.Component {
             edges: [],
             tools: props.tools,
             newEdge: null,
+            selectedNode: null,
+            setSelectedNode: props.setSelectedNode,
         };
         this.addNode = this.addNode.bind(this);
         this.handleClick = this.handleClick.bind(this);
         this.handleNodeClick = this.handleNodeClick.bind(this);
         this.onMouseMove = this.onMouseMove.bind(this);
+        this.handleEdgeDrawing = this.handleEdgeDrawing.bind(this);
     }
     
     handleClick(e) {
@@ -31,6 +34,8 @@ class Workspace extends React.Component {
                 this.addNode(e);
                 break;
             case this.state.tools.EDGE_TOOL:
+            case this.state.tools.SELECT_TOOL:
+                // handled elsewhere
                 break;
             default:
                 console.error('no handler for tool: ', this.props.tool);
@@ -55,6 +60,19 @@ class Workspace extends React.Component {
     }
     
     handleNodeClick(node) {
+        switch (this.props.tool) {
+            case this.props.tools.EDGE_TOOL:
+                this.handleEdgeDrawing(node);
+                break;
+            case this.props.tools.SELECT_TOOL:
+                this.state.setSelectedNode(node);
+                break;
+            default:
+                break;
+        }
+    }
+    
+    handleEdgeDrawing(node) {
         if (!this.state.newEdge) {
             // start
             var newEdge = {src: node};
@@ -110,6 +128,20 @@ class Workspace extends React.Component {
             height: '400px',
             border: '1px solid black',
         };
+        
+        var nodes = this.state.nodes.map(function (node) {
+            return (this.props.selectedNode && node.props === this.props.selectedNode.props)
+                ? <Node 
+                    x={node.props.x}
+                    y={node.props.y}
+                    name={node.props.name}
+                    selected={true}
+                    key={getID()}
+                    onClick={this.handleNodeClick}
+                  />
+                : node;
+        }, this);
+        
         return (
             <div>
                 <svg
@@ -120,7 +152,7 @@ class Workspace extends React.Component {
                 >
                     {this.state.edges}
                     {newEdge}
-                    {this.state.nodes}
+                    {nodes}
                 </svg>
                 <Output
                     edges={this.state.edges}
@@ -134,6 +166,8 @@ class Workspace extends React.Component {
 Workspace.propTypes = {
     tool: React.PropTypes.string.isRequired,
     tools: React.PropTypes.object.isRequired,
+    setSelectedNode: React.PropTypes.func.isRequired,
+    selectedNode: React.PropTypes.object,
 };
 
 module.exports = Workspace;

@@ -1,6 +1,5 @@
 var React = require('react');
 var Node = require('./Node');
-var Edge = require('./Edge');
 
 class Toolbox extends React.Component {
     constructor(props) {
@@ -26,6 +25,11 @@ class Toolbox extends React.Component {
         
         return (
             <svg style={frameStyle}>
+                <polygon
+                    points="10,10 40,20, 40,40"
+                    stroke="black"
+                    onClick={this.state.setTool.bind(null, this.state.tools.SELECT_TOOL)}
+                />
                 <Node 
                     x={this.state.width / (nTools + 1)}
                     y={this.state.height / 2}

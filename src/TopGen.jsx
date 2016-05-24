@@ -1,6 +1,7 @@
 var React = require('react');
 var Workspace = require('./Workspace');
 var Toolbox = require('./Toolbox');
+var AttributesBox = require('./AttributesBox');
 
 class Topgen extends React.Component {
     constructor(props) {
@@ -9,16 +10,23 @@ class Topgen extends React.Component {
             NO_TOOL: 'NO_TOOL',
             NODE_TOOL: 'NODE_TOOL',
             EDGE_TOOL: 'EDGE_TOOL',
+            SELECT_TOOL: 'SELECT_TOOL',
         };
         this.state = {
             tools: tools,
             tool: tools.NO_TOOL,
+            selectedNode: null,
         };
         this.setTool = this.setTool.bind(this);
+        this.setSelectedNode = this.setSelectedNode.bind(this);
     }
 
     setTool(tool) {
         this.setState({tool: tool});
+    }
+    
+    setSelectedNode(node) {
+        this.setState({selectedNode:node});
     }
     
     render() {
@@ -32,6 +40,11 @@ class Topgen extends React.Component {
                 <Workspace
                     tools={this.state.tools}
                     tool={this.state.tool}
+                    setSelectedNode={this.setSelectedNode}
+                    selectedNode={this.state.selectedNode}
+                />
+                <AttributesBox
+                    selectedNode={this.state.selectedNode}
                 />
             </div>
         );
