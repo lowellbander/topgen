@@ -1,6 +1,6 @@
 var React = require('react');
 
-var Topgen = require('./Topgen');
+var Topgen = require('./TopGen');
 
 React.render(
   <Topgen />,

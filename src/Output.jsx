@@ -24,7 +24,7 @@ class Output extends React.Component {
             <div style={style}>
                 <p>#Name X Y</p>
                 {nodes}
-                <p>#Src Dst</p>
+                <p>#Node1 Node2</p>
                 {edges}
             </div>
         );
