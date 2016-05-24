@@ -4,7 +4,7 @@ var Edge = require('./Edge');
 var Output = require('./Output');
 
 class Workspace extends React.Component {
-    
+
     constructor(props) {
         super(props);
         this.state = {
@@ -20,7 +20,7 @@ class Workspace extends React.Component {
         this.onMouseMove = this.onMouseMove.bind(this);
         this.handleEdgeDrawing = this.handleEdgeDrawing.bind(this);
     }
-    
+
     handleClick(e) {
         switch (this.props.tool) {
             case this.state.tools.NO_TOOL:
@@ -40,7 +40,7 @@ class Workspace extends React.Component {
                 break;
         }
     }
-    
+
     handleNodeClick(node) {
         switch (this.props.tool) {
             case this.props.tools.EDGE_TOOL:
@@ -53,7 +53,7 @@ class Workspace extends React.Component {
                 break;
         }
     }
-    
+
     handleEdgeDrawing(node) {
         if (!this.state.newEdge) {
             // start
@@ -65,7 +65,7 @@ class Workspace extends React.Component {
             this.setState({newEdge: null});
         }
     }
-    
+
     onMouseMove(e) {
         if (this.state.newEdge && e.target.id === 'scene') {
             var x = e.pageX - e.target.getBoundingClientRect().left,
@@ -76,9 +76,9 @@ class Workspace extends React.Component {
             this.setState({newEdge: newEdge});
         }
     }
-    
+
     render() {
-        
+
         var newEdge;
         if (this.state.newEdge) {
             var src = this.state.newEdge.src;
@@ -95,16 +95,16 @@ class Workspace extends React.Component {
         } else {
             newEdge = <line />; // invisible
         }
-        
+
         var frameStyle = {
             width: '500px',
             height: '400px',
             border: '1px solid black',
         };
-        
+
         var nodes = this.props.nodes.map(function (node) {
             return (this.props.selectedNode && node.props.name === this.props.selectedNode.props.name)
-                ? <Node 
+                ? <Node
                     x={node.props.x}
                     y={node.props.y}
                     name={node.props.name}
@@ -112,7 +112,7 @@ class Workspace extends React.Component {
                     key={node.key}
                     onClick={this.handleNodeClick}
                   />
-                : <Node 
+                : <Node
                     x={node.props.x}
                     y={node.props.y}
                     name={node.props.name}
@@ -121,7 +121,7 @@ class Workspace extends React.Component {
                     onClick={this.handleNodeClick}
                   />;
         }, this);
-        
+
         return (
             <div>
                 <svg
