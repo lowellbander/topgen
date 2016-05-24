@@ -17,6 +17,8 @@ class Topgen extends React.Component {
             NODE_TOOL: 'NODE_TOOL',
             EDGE_TOOL: 'EDGE_TOOL',
             SELECT_TOOL: 'SELECT_TOOL',
+            PLAY_TOOL: 'PLAY_TOOL',
+            STOP_TOOL: 'STOP_TOOL',
         };
         this.state = {
             tools: tools,
@@ -34,11 +36,11 @@ class Topgen extends React.Component {
     setTool(tool) {
         this.setState({tool: tool});
     }
-    
+
     setSelectedNode(node) {
         this.setState({selectedNode:node});
     }
-    
+
     addNode({x, y}={}) {
         var id = getID();
         var newNode = (
@@ -51,7 +53,7 @@ class Topgen extends React.Component {
         );
         this.setState({nodes: this.state.nodes.concat(newNode)});
     }
-    
+
     addEdge({src, dst}={}) {
         var edge = (
             <Edge
