@@ -11,18 +11,18 @@ class Toolbox extends React.Component {
             tools: props.tools,
         };
     }
-    
+
     render() {
         var frameStyle = {
             width: this.state.width,
             height: this.state.height,
             border: '1px solid black',
         };
-        
+
         // TODO: make a Tool class so this resizing is generalized
-        
-        var nTools = 2;
-        
+
+        var nTools = 3;
+
         return (
             <svg style={frameStyle}>
                 <polygon
@@ -30,7 +30,7 @@ class Toolbox extends React.Component {
                     stroke="black"
                     onClick={this.state.setTool.bind(null, this.state.tools.SELECT_TOOL)}
                 />
-                <Node 
+                <Node
                     x={this.state.width / (nTools + 1)}
                     y={this.state.height / 2}
                     onClick={this.state.setTool.bind(null, this.state.tools.NODE_TOOL)}
@@ -44,6 +44,20 @@ class Toolbox extends React.Component {
                     stroke="black"
                     strokeWidth="10"
                     onClick={this.state.setTool.bind(null, this.state.tools.EDGE_TOOL)}
+                />
+                <polygon
+                    points="250,20 250,200 50,250"
+                    y="10"
+                    stroke="black"
+                    onClick={this.state.setTool.bind(null, this.state.tools.PLAY_TOOL)}
+                />
+                <rect
+                    x="270"
+                    y="10"
+                    width="30"
+                    height="30"
+                    stroke="black"
+                    onClick={this.state.setTool.bind(null, this.state.tools.STOP_TOOL)}
                 />
             </svg>
         );

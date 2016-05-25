@@ -35,6 +35,12 @@ class Workspace extends React.Component {
             case this.state.tools.SELECT_TOOL:
                 // handled elsewhere
                 break;
+            case this.state.tools.PLAY_TOOL:
+                // Decide what to do with play
+                break;
+            case this.state.tools.STOP_TOOL:
+                // Decide what to do with stop
+                break;
             default:
                 console.error('no handler for tool: ', this.props.tool);
                 break;
